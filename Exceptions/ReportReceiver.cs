@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+// ReSharper disable CollectionNeverQueried.Local
+// ReSharper disable FieldCanBeMadeReadOnly.Local
 
 namespace Exceptions
 {
     // Что тут не так?
     public class ReportReceiver
     {
-        private readonly Dictionary<Guid, Report> reportsCache = new Dictionary<Guid, Report>();
-        private readonly Dictionary<Guid, Organization> sendersCache = new Dictionary<Guid, Organization>();
-        private readonly Dictionary<Guid, Organization> receiversCache = new Dictionary<Guid, Organization>();
+        private Dictionary<Guid, Report> reportsCache 
+			= new Dictionary<Guid, Report>();
+        private Dictionary<Guid, Organization> sendersCache 
+			= new Dictionary<Guid, Organization>();
+        private Dictionary<Guid, Organization> receiversCache 
+			= new Dictionary<Guid, Organization>();
         private readonly OrganizationRepo organizationsRepo;
 
         public ReportReceiver(OrganizationRepo organizationsRepo)
@@ -25,6 +30,8 @@ namespace Exceptions
                 reportsCache.Add(report.Id, report);
             }
         }
+
+		//...
     }
 
 

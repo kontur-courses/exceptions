@@ -29,7 +29,9 @@ namespace Exceptions
 
         private static void ConvertFiles(string[] filenames, Settings settings)
         {
-            var threads = filenames.Select(fn => new Thread(() => ConvertFile(fn, settings))).ToList();
+            var threads = filenames
+                .Select(fn => new Thread(() => ConvertFile(fn, settings)))
+                .ToList();
             threads.ForEach(t => t.Start());
             threads.ForEach(t => t.Join());
         }
@@ -92,6 +94,7 @@ namespace Exceptions
                 }
             }
         }
+
 
         private static string ConvertAsCharIndexInstruction(string s)
         {
