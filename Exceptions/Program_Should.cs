@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
+using KonturCSharper;
 using NLog.Config;
 using NLog.Targets;
 using NUnit.Framework;
@@ -8,8 +9,13 @@ using NUnit.Framework;
 namespace Exceptions
 {
 	[TestFixture]
-	public class Program_Should
+	public class Program_Should : ReportingTest<Program_Should>
 	{
+		// ReSharper disable once UnusedMember.Global
+		public static string Names = "ФАШИ ФАМИЛИИ ЧЕРЕЗ ПРОБЕЛ"; // Ivanov Petrov
+
+		private MemoryTarget log;
+
 		[SetUp]
 		public void SetUp()
 		{
@@ -18,8 +24,96 @@ namespace Exceptions
 			File.Delete("text.txt.out");
 		}
 
-		private MemoryTarget log;
+		[TearDown]
+		public void TearDown()
+		{
+			foreach (var message in log.Logs)
+				Console.WriteLine(message);
+		}
 
+
+		[TestCase("ru", "1")]
+		[TestCase("ru", "1,12")]
+		[TestCase("ru", "15.11.1982")]
+		[TestCase("ru", "1 asdasd")]
+		[TestCase("ru", "1\n1,12\n15.11.1982\n1 qwe")]
+		[TestCase("en", "1.12")]
+		[TestCase("en", "12/31/2017")]
+		public void ConvertSilently(string sourceCulture, string input)
+		{
+			Arrange(
+				new Settings { SourceCultureName = sourceCulture, Verbose = false },
+				input
+			);
+
+			Program.Main("text.txt");
+
+			Assert.IsTrue(File.Exists("text.txt.out"));
+			Assert.IsEmpty(log.Logs);
+		}
+
+		[Test]
+		[Explicit("Надо доделать...")]
+		public void FailGracefully_IfSettingsXmlIncorrect()
+		{
+			File.WriteAllText("settings.xml", "NOT XML AT ALL!");
+
+			Program.Main();
+
+			var errorMessage = log.Logs[0];
+			// должно быть понятное сообщение:
+			Assert.That(errorMessage, Does.Match("Не удалось прочитать файл настроек"));
+			// и технические подробности:
+			Assert.That(errorMessage, Does.Match("XmlException"));
+			Assert.That(log.Logs.Count, Is.EqualTo(1));
+		}
+
+		[Test]
+		[Explicit("Что-то сломалось...")]
+		public void FailGracefully_WhenFileNotFound()
+		{
+			Arrange(Settings.Default, "123");
+			var filename = Guid.NewGuid().ToString();
+			Program.Main(filename);
+
+			var errorMessage = log.Logs[0];
+			Assert.That(errorMessage, Does.Match($"Не удалось сконвертировать {filename}"));
+			Assert.That(errorMessage, Does.Match("FileNotFoundException"));
+			Assert.AreEqual(1, log.Logs.Count);
+		}
+
+		[Explicit("Что-то непонятное...")]
+		[TestCase("qwe123")]
+		[TestCase("100500 a")]
+		public void FailGracefully_WhenFormatIsWrong(string input)
+		{
+			Arrange(Settings.Default, input);
+
+			Program.Main();
+
+			// Не должно быть трэша:
+			var errorMessage = log.Logs[0];
+			Assert.That(errorMessage, Does.Not.Match("AggregateException"));
+			// Должны быть подробности про ошибку формата:
+			Assert.That(errorMessage, Does.Match("Некорректная строка"));
+			Assert.AreEqual(1, log.Logs.Count);
+		}
+
+		[Test]
+		[Explicit("Надо доделать...")]
+		public void UseDefaultSettings_IfSettingsXmlAbsent()
+		{
+			Arrange(Settings.Default, "123");
+			File.Delete("settings.xml");
+
+			Program.Main();
+
+			//Должно быть понятное предупреждение:
+			Assert.That(log.Logs[0], Does.Match("Файл настроек .* отсутствует."));
+			Assert.That(log.Logs.Count, Is.EqualTo(1));
+			//Но программа должна отработать с настройками по умолчанию:
+			Assert.IsTrue(File.Exists("text.txt.out"));
+		}
 
 		private void Arrange(Settings settings, string input)
 		{
@@ -36,60 +130,5 @@ namespace Exceptions
 			}
 		}
 
-		[TestCase("ru", "1")]
-		[TestCase("ru", "1,12")]
-		[TestCase("ru", "15.11.1982")]
-		[TestCase("ru", "1\n1,12\n15.11.1982")]
-		[TestCase("en", "1.12")]
-		[TestCase("en", "12/31/2017")]
-		public void ConvertSilently(string sourceCulture, string input)
-		{
-			Arrange(
-				new Settings { SourceCultureName = sourceCulture, Verbose = false },
-				input
-			);
-
-			Program.Main(new[] { "text.txt" });
-
-			Assert.IsTrue(File.Exists("text.txt.out"));
-			Assert.IsEmpty(log.Logs);
-		}
-
-		[Test, Explicit("Что-то сломалось...")]
-		public void GracefullyFail_WhenFileNotFound()
-		{
-			var filename = Guid.NewGuid().ToString();
-			Program.Main(new[] { filename });
-
-			Assert.AreEqual(1, log.Logs.Count);
-			Assert.That(log.Logs[0], Does.Match($"File {filename} not found"));
-		}
-
-		[Test, Explicit("Что-то непонятное...")]
-		public void GracefullyFail_WhenFormatIsWrong()
-		{
-			Arrange(
-				new Settings { SourceCultureName = "ru", Verbose = false },
-				"12qwe"
-			);
-
-			Program.Main();
-
-			Assert.AreEqual(1, log.Logs.Count);
-			Assert.That(log.Logs[0], Does.Not.Match("AggregateException"));
-			Assert.That(log.Logs[0], Does.Not.Match("NullReferenceException"));
-		}
-
-		[Test, Explicit("Надо доделать...")]
-		public void DefaultSettings_IfSettingsXmlAbsent()
-		{
-			Arrange(new Settings(), "123");
-			File.Delete("settings.xml");
-
-			Program.Main();
-
-			Assert.That(log.Logs.Count, Is.EqualTo(1));
-			Assert.That(log.Logs[0], Does.Match("Файл настроек .* отсутствует."));
-		}
 	}
 }
