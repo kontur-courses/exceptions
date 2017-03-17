@@ -35,14 +35,14 @@ namespace KonturCSharper
 			var testStatus = tests.FirstOrDefault(t => t.TestName == testName);
 			if (testStatus != null)
 			{
-				testStatus.LastTime = DateTime.Now;
+				testStatus.LastRunTime = DateTime.Now;
 				testStatus.Succeeded = succeeded;
 			}
 			else
 				tests.Add(new TestCaseStatus
 				{
-					FirstTime = DateTime.Now,
-					LastTime = DateTime.Now,
+					FirstRunTime = DateTime.Now,
+					LastRunTime = DateTime.Now,
 					TestName = testName,
 					TestMethod = test.MethodName,
 					Succeeded = succeeded
@@ -78,6 +78,7 @@ namespace KonturCSharper
 		[OneTimeTearDown]
 		public static void ReportResults()
 		{
+			tests = tests.OrderByDescending(t => t.LastRunTime).ThenByDescending(t => t.FirstRunTime).ToList();
 			SaveResults(tests);
 			var names = typeof(TTestClass).GetField("Names").GetValue(null);
 			Console.WriteLine(names);
@@ -101,8 +102,8 @@ namespace KonturCSharper
 	{
 		public string TestMethod;
 		public string TestName;
-		public DateTime FirstTime;
-		public DateTime LastTime;
+		public DateTime FirstRunTime;
+		public DateTime LastRunTime;
 		public bool Succeeded;
 	}
 }
