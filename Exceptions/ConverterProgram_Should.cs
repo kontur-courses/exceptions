@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Exceptions
 {
 	[TestFixture]
-	public class Program_Should : ReportingTest<Program_Should>
+	public class ConverterProgram_Should : ReportingTest<ConverterProgram_Should>
 	{
 		// ReSharper disable once UnusedMember.Global
 		public static string Names = "ФАШИ ФАМИЛИИ ЧЕРЕЗ ПРОБЕЛ"; // Ivanov Petrov
@@ -46,7 +46,7 @@ namespace Exceptions
 				input
 			);
 
-			Program.Main("text.txt");
+			ConverterProgram.Main("text.txt");
 
 			Assert.IsTrue(File.Exists("text.txt.out"));
 			Assert.IsEmpty(log.Logs);
@@ -58,7 +58,7 @@ namespace Exceptions
 		{
 			File.WriteAllText("settings.xml", "NOT XML AT ALL!");
 
-			Program.Main();
+			ConverterProgram.Main();
 
 			var errorMessage = log.Logs[0];
 			// должно быть понятное сообщение:
@@ -74,7 +74,7 @@ namespace Exceptions
 		{
 			Arrange(Settings.Default, "123");
 			var filename = Guid.NewGuid().ToString();
-			Program.Main(filename);
+			ConverterProgram.Main(filename);
 
 			var errorMessage = log.Logs[0];
 			Assert.That(errorMessage, Does.Match($"Не удалось сконвертировать {filename}"));
@@ -89,7 +89,7 @@ namespace Exceptions
 		{
 			Arrange(Settings.Default, input);
 
-			Program.Main();
+			ConverterProgram.Main();
 
 			// Не должно быть трэша:
 			var errorMessage = log.Logs[0];
@@ -106,7 +106,7 @@ namespace Exceptions
 			Arrange(Settings.Default, "123");
 			File.Delete("settings.xml");
 
-			Program.Main();
+			ConverterProgram.Main();
 
 			//Должно быть понятное предупреждение:
 			Assert.That(log.Logs[0], Does.Match("Файл настроек .* отсутствует."));

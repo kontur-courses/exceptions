@@ -10,7 +10,7 @@ using NLog;
 
 namespace Exceptions
 {
-	public class Program
+	public class ConverterProgram
 	{
 		private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
