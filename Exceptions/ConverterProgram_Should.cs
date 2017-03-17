@@ -53,7 +53,6 @@ namespace Exceptions
 		}
 
 		[Test]
-		[Explicit("Надо доделать...")]
 		public void FailGracefully_IfSettingsXmlIncorrect()
 		{
 			File.WriteAllText("settings.xml", "NOT XML AT ALL!");
@@ -69,7 +68,6 @@ namespace Exceptions
 		}
 
 		[Test]
-		[Explicit("Что-то сломалось...")]
 		public void FailGracefully_WhenFileNotFound()
 		{
 			Arrange(Settings.Default, "123");
@@ -82,7 +80,6 @@ namespace Exceptions
 			Assert.AreEqual(1, log.Logs.Count);
 		}
 
-		[Explicit("Что-то непонятное...")]
 		[TestCase("qwe123")]
 		[TestCase("100500 a")]
 		public void FailGracefully_WhenFormatIsWrong(string input)
@@ -100,7 +97,6 @@ namespace Exceptions
 		}
 
 		[Test]
-		[Explicit("Надо доделать...")]
 		public void UseDefaultSettings_IfSettingsXmlAbsent()
 		{
 			Arrange(Settings.Default, "123");
