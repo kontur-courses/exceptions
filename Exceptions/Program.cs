@@ -14,7 +14,7 @@ namespace Exceptions
 	{
 		private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
-		public static void Main(string[] args)
+		public static void Main(params string[] args)
 		{
 			try
 			{
@@ -40,7 +40,7 @@ namespace Exceptions
 		{
 			var serializer = new XmlSerializer(typeof(Settings));
 			var content = File.ReadAllText("settings.xml");
-			return (Settings)serializer.Deserialize(new StringReader(content));
+			return (Settings) serializer.Deserialize(new StringReader(content));
 		}
 
 		private static void ConvertFile(string filename, Settings settings)
@@ -104,7 +104,7 @@ namespace Exceptions
 			var parts = s.Split();
 			if (parts.Length < 2) return null;
 			var charIndex = int.Parse(parts[0]);
-			if (charIndex < 0 || charIndex >= parts[1].Length)
+			if ((charIndex < 0) || (charIndex >= parts[1].Length))
 				return null;
 			var text = parts[1];
 			return text[charIndex].ToString();
