@@ -32,14 +32,13 @@ namespace Exceptions
 		}
 
 
-		[TestCase("ru", "1")]
-		[TestCase("ru", "1,12")]
-		[TestCase("ru", "15.11.1982")]
-		[TestCase("ru", "1 asdasd")]
-		[TestCase("ru", "1\n1,12\n15.11.1982\n1 qwe")]
-		[TestCase("en", "1.12")]
-		[TestCase("en", "12/31/2017")]
-		public void ConvertSilently(string sourceCulture, string input)
+		[TestCase("ru", "1,12", TestName = "double")]
+		[TestCase("ru", "15.11.1982", TestName = "date")]
+		[TestCase("ru", "1 asdasd", TestName = "char")]
+		[TestCase("ru", "1\n1,12\n15.11.1982\n1 qwe", TestName = "mixed")]
+		[TestCase("en", "1.12", TestName = "en double")]
+		[TestCase("en", "12/31/2017", TestName = "en date")]
+		public void Convert(string sourceCulture, string input)
 		{
 			Arrange(
 				new Settings { SourceCultureName = sourceCulture, Verbose = false },
@@ -53,7 +52,7 @@ namespace Exceptions
 		}
 
 		[Test]
-		public void FailGracefully_IfSettingsXmlIncorrect()
+		public void Fail_IfSettingslIncorrect()
 		{
 			File.WriteAllText("settings.xml", "NOT XML AT ALL!");
 
@@ -68,7 +67,7 @@ namespace Exceptions
 		}
 
 		[Test]
-		public void FailGracefully_WhenFileNotFound()
+		public void Fail_WhenNoFile()
 		{
 			Arrange(Settings.Default, "123");
 			var filename = Guid.NewGuid().ToString();
@@ -80,9 +79,9 @@ namespace Exceptions
 			Assert.AreEqual(1, log.Logs.Count);
 		}
 
-		[TestCase("qwe123")]
-		[TestCase("100500 a")]
-		public void FailGracefully_WhenFormatIsWrong(string input)
+		[TestCase("abracadabra", TestName = "abracadabra")]
+		[TestCase("100500 a", TestName = "wrong char index")]
+		public void FailOn(string input)
 		{
 			Arrange(Settings.Default, input);
 
@@ -97,7 +96,7 @@ namespace Exceptions
 		}
 
 		[Test]
-		public void UseDefaultSettings_IfSettingsXmlAbsent()
+		public void UseDefaultSettings_IfNoSettings()
 		{
 			Arrange(Settings.Default, "123");
 			File.Delete("settings.xml");
