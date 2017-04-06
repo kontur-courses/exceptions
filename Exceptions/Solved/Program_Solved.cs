@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using NLog;
 
-namespace Exceptions
+namespace Exceptions.Solved
 {
 	public class Program
 	{
 		private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
-		public static void Main1(string[] args)
+		public static void Main(string[] args)
 		{
 			ErrorHandler.LogErrors(() =>
 			{

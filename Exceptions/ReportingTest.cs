@@ -8,11 +8,32 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 
-namespace KonturCSharper
+namespace Exceptions
 {
-	public class ReportingTest<TTestClass>
+    public static class Firebase
+    {
+        private static FirebaseConfig BuildConfig()
+        {
+            const string Url = "https://testing-challenge.firebaseio.com";
+            const string Realm = "exceptions";
+            var dateKey = DateTime.Now.Date.ToString("yyyyMMdd");
+
+            var config = new FirebaseConfig
+            {
+                BasePath = $"{Url}/{Realm}/{dateKey}"
+            };
+            return config;
+        }
+
+        public static FirebaseClient CreateClient()
+        {
+            return new FirebaseClient(BuildConfig());
+        }
+    }
+
+    public class ReportingTest<TTestClass>
 	{
-		private static readonly string resultsFileName = typeof(TTestClass).Name + ".txt";
+		private static readonly string resultsFileName = typeof(TTestClass).Name + ".json";
 		private static string resultsFile;
 		private static List<TestCaseStatus> tests;
 
@@ -22,8 +43,7 @@ namespace KonturCSharper
 			resultsFile = Path.Combine(TestContext.CurrentContext.TestDirectory, resultsFileName);
 			tests = LoadResults();
 		}
-
-
+        
 		[TearDown]
 		public static void WriteLastRunResult()
 		{
@@ -86,11 +106,8 @@ namespace KonturCSharper
 			{
 				Console.WriteLine(kv.TestName);
 			}
-			var config = new FirebaseConfig
-			{
-				BasePath = $"https://testing-challenge.firebaseio.com/testsboard/{typeof(TTestClass).Name}/{DateTime.Today:yyyyMMdd}"
-			};
-			using (var client = new FirebaseClient(config))
+            
+			using (var client = Firebase.CreateClient())
 			{
 				client.Set(names + "/tests", tests);
 			}

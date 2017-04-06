@@ -1,7 +1,7 @@
 ﻿using System;
 using NLog;
 
-namespace Exceptions
+namespace Exceptions.Solved
 {
 	public static class ErrorHandler
 	{

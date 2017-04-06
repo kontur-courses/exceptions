@@ -44,13 +44,19 @@
 			if (t.TestName == testName) return t;
 		return null;
 	}
+
+	function buildDateKey() {
+		var now = new Date();
+		var day = ("0" + now.getDate()).substr(0, 2);
+		var month = ("0" + (now.getMonth() + 1)).substr(0, 2);
+		var year = now.getFullYear();
+		return year + month + day;
+	}
 	
-	var testName = "ConverterProgram_Should";
-	var rightNow = new Date();
-	var session = rightNow.toISOString().slice(0,10).replace(/-/g,"");
+	var realm = "exceptions";
+	var dateKey = buildDateKey();
 	var fb = new Firebase(
-		"https://testing-challenge.firebaseio.com/testsboard/" 
-		+ testName + "/" + session);
+		"https://testing-challenge.firebaseio.com/" + realm + "/" + dateKey);
 	fb.on("value", function(snapshot) {
 		var res = snapshot.val();
 		var testNames = getAllTestNames(res);
