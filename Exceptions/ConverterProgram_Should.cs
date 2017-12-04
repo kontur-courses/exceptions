@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using NLog.Config;
@@ -50,7 +51,35 @@ namespace Exceptions
 			Assert.IsEmpty(log.Logs);
 		}
 
-		[Test]
+	    [TestCase("asdasd", TestName = "incorrect")]
+	    [TestCase("2017-01-01", TestName = "correct date")]
+	    [TestCase("123", TestName = "correct number")]
+	    public void ConvertFast(string input)
+	    {
+            #region warm_up
+            ConverterProgram.ConvertLine(input);
+	        DateTime.TryParse(input, out var d1);
+            #endregion
+
+            var time = Measure(input, s => DateTime.TryParse(s, out var d) ? d.ToString() : s);
+	        var time2 = Measure(input, ConverterProgram.ConvertLine);
+	        Console.WriteLine(time);
+	        Console.WriteLine(time2);
+            Assert.Less(time2.TotalMilliseconds, 10*time.TotalMilliseconds, "ConvertLine is too slow! (more than 10 times slower than just DateTime.TryParse)");
+        }
+
+	    private static TimeSpan Measure(string input, Func<string, string> action)
+	    {
+	        var timer = Stopwatch.StartNew();
+	        for (var i = 0; i < 100000; i++)
+	        {
+	            action(input);
+	        }
+	        timer.Stop();
+	        return timer.Elapsed;
+	    }
+
+	    [Test]
 		public void Fail_IfSettingslIncorrect()
 		{
 			File.WriteAllText("settings.xml", "NOT XML AT ALL!");
@@ -58,9 +87,7 @@ namespace Exceptions
 			ConverterProgram.Main();
 
 			var errorMessage = log.Logs[0];
-			// должно быть понятное сообщение:
 			Assert.That(errorMessage, Does.Match("Не удалось прочитать файл настроек"));
-			// и технические подробности:
 			Assert.That(errorMessage, Does.Match("XmlException"));
 			Assert.That(log.Logs.Count, Is.EqualTo(1));
 		}
@@ -80,32 +107,28 @@ namespace Exceptions
 
 		[TestCase("abracadabra", TestName = "abracadabra")]
 		[TestCase("100500 a", TestName = "wrong char index")]
-		public void FailOn(string input)
+		public void FailOn(string input)    
 		{
 			Arrange(Settings.Default, input);
 
 			ConverterProgram.Main();
 
-			// Не должно быть трэша:
 			var errorMessage = log.Logs[0];
 			Assert.That(errorMessage, Does.Not.Match("AggregateException"));
-			// Должны быть подробности про ошибку формата:
 			Assert.That(errorMessage, Does.Match("Некорректная строка"));
 			Assert.AreEqual(1, log.Logs.Count);
 		}
 
 		[Test]
-		public void UseDefaultSettings_IfNoSettings()
+		public void UseDefaultSettings_IfNoSettings() 
 		{
 			Arrange(Settings.Default, "123");
 			File.Delete("settings.xml");
 
 			ConverterProgram.Main();
 
-			//Должно быть понятное предупреждение:
 			Assert.That(log.Logs[0], Does.Match("Файл настроек .* отсутствует."));
 			Assert.That(log.Logs.Count, Is.EqualTo(1));
-			//Но программа должна отработать с настройками по умолчанию:
 			Assert.IsTrue(File.Exists("text.txt.out"));
 		}
 
