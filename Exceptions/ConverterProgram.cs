@@ -31,12 +31,12 @@ namespace Exceptions
 		private static void ConvertFiles(string[] filenames, Settings settings)
 		{
 			var tasks = filenames
-				.Select(fn => Task.Run(() => ConvertFile(fn, settings)))
+				.Select(fn => Task.Run(() => ConvertFile(fn, settings))) 
 				.ToArray();
-			Task.WaitAll(tasks);
+			Task.WaitAll(tasks); 
 		}
 
-		private static Settings LoadSettings()
+		private static Settings LoadSettings() 
 		{
 			var serializer = new XmlSerializer(typeof(Settings));
 			var content = File.ReadAllText("settings.xml");
@@ -52,13 +52,13 @@ namespace Exceptions
 				log.Info("Source Culture " + Thread.CurrentThread.CurrentCulture.Name);
 			}
 			IEnumerable<string> lines;
-			try
+			try 
 			{
-				lines = PrepareLines(filename);
+				lines = PrepareLines(filename); 
 			}
 			catch
 			{
-				log.Error($"File {filename} not found");
+				log.Error($"File {filename} not found"); 
 				return;
 			}
 			var convertedLines = lines
@@ -79,8 +79,8 @@ namespace Exceptions
 			yield return lineIndex.ToString();
 		}
 
-		private static string ConvertLine(string arg)
-		{
+	    public static string ConvertLine(string arg) 
+		{												
 			try
 			{
 				return ConvertAsDateTime(arg);
@@ -97,7 +97,6 @@ namespace Exceptions
 				}
 			}
 		}
-
 
 		private static string ConvertAsCharIndexInstruction(string s)
 		{
