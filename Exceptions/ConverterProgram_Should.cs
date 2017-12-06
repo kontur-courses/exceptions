@@ -54,7 +54,6 @@ namespace Exceptions
 			Assert.IsEmpty(log.Logs);
 		}
 
-	    [TestCase("asdasd", TestName = "incorrect")]
 	    [TestCase("2017-01-01", TestName = "correct date")]
 	    [TestCase("123", TestName = "correct number")]
 	    public void ConvertFast(string input)
