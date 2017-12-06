@@ -21,6 +21,9 @@ namespace Exceptions
 		{
 			log = new MemoryTarget();
 			SimpleConfigurator.ConfigureForTargetLogging(log);
+			log.Layout = "${longdate} ${uppercase:${level}} ${message} ${exception:format=tostring}";
+			// Uncomment the next line if tests fails due to UnauthorizedAccessException
+			// Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 			File.Delete("text.txt.out");
 		}
 
