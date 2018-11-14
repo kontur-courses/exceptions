@@ -9,11 +9,11 @@ namespace Exceptions
     public class ReportReceiver
     {
         private Dictionary<Guid, Report> reportsCache 
-			= new Dictionary<Guid, Report>();
+            = new Dictionary<Guid, Report>();
         private Dictionary<Guid, Organization> sendersCache 
-			= new Dictionary<Guid, Organization>();
+            = new Dictionary<Guid, Organization>();
         private Dictionary<Guid, Organization> receiversCache 
-			= new Dictionary<Guid, Organization>();
+            = new Dictionary<Guid, Organization>();
         private readonly OrganizationRepo organizationsRepo;
 
         public ReportReceiver(OrganizationRepo organizationsRepo)
@@ -31,7 +31,7 @@ namespace Exceptions
             }
         }
 
-		//...
+        //...
     }
 
 
