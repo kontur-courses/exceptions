@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Exceptions
+﻿namespace Exceptions
 {
     public class Settings
     {
