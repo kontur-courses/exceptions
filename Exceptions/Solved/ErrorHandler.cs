@@ -1,35 +1,33 @@
 ﻿using System;
 using NLog;
 
-namespace Exceptions.Solved
+namespace Exceptions.Solved;
+
+public static class ErrorHandler
 {
-    public static class ErrorHandler
+    private static readonly Logger log = LogManager.GetLogger("global");
+    public static void LogErrors(Action action)
     {
-        private static readonly Logger log = LogManager.GetLogger("global");
-        public static void LogErrors(Action action)
+        try
         {
-            try
-            {
-                action();
-            }
-            catch (Exception e)
-            {
-                log.Error(e);
-            }
+            action();
         }
-
-        public static T Refine<T>(Func<T> func,
-            Func<Exception, Exception> createRefinedError)
+        catch (Exception e)
         {
-            try
-            {
-                return func();
-            }
-            catch (Exception e)
-            {
-                throw createRefinedError(e);
-            }
+            log.Error(e);
         }
+    }
 
+    public static T Refine<T>(Func<T> func,
+        Func<Exception, Exception> createRefinedError)
+    {
+        try
+        {
+            return func();
+        }
+        catch (Exception e)
+        {
+            throw createRefinedError(e);
+        }
     }
 }
