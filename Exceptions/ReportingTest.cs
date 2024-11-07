@@ -66,7 +66,7 @@ public class ReportingTest<TTestClass>
 
     private static async Task SaveResults(List<TestCaseStatus> tests)
     {
-        await using var stream = new FileStream(resultsFile, FileMode.Truncate);
+        await using var stream = new FileStream(resultsFile, FileMode.Create);
         await JsonSerializer.SerializeAsync(stream, tests, JsonOptions);
     }
 
