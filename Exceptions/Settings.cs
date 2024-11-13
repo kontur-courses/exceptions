@@ -1,19 +1,6 @@
-﻿namespace Exceptions
+﻿namespace Exceptions;
+
+public record Settings(string SourceCultureName, bool Verbose)
 {
-    public class Settings
-    {
-        public static Settings Default = new Settings("ru", false);
-        public string SourceCultureName;
-        public bool Verbose;
-
-        public Settings()
-        {
-        }
-
-        private Settings(string sourceCultureName, bool verbose)
-        {
-            SourceCultureName = sourceCultureName;
-            Verbose = verbose;
-        }
-    }
+    public static readonly Settings Default = new("ru", false);
 }
