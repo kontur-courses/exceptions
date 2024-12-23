@@ -128,7 +128,7 @@ public class Converter_Should : ReportingTest<Converter_Should>
 
     private static void SaveSettings(Settings settings)
     {
-        using var stream = new FileStream("settings.json", FileMode.Truncate);
+        using var stream = new FileStream("settings.json", FileMode.Create);
         JsonSerializer.Serialize(stream, settings);
     }
 
