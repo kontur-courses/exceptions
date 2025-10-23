@@ -127,6 +127,6 @@ public static class Result
         this Result<TInput> input,
         string errorMessage)
     {
-        return input.ReplaceError(err => errorMessage + ". " + err);
+        return input.ReplaceError(err => $"{errorMessage}. {err}");
     }
 }

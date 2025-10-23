@@ -36,27 +36,9 @@ public class Document
     public byte[] Content { get; set; }
 }
 
-public class FileContent
+public record FileContent(string Name, byte[] Content);
+
+public record FileSendResult(FileContent File, string Error = null)
 {
-    public FileContent(string name, byte[] content)
-    {
-        Name = name;
-        Content = content;
-    }
-
-    public string Name { get; }
-    public byte[] Content { get; }
-}
-
-public class FileSendResult
-{
-    public FileSendResult(FileContent file, string error = null)
-    {
-        File = file;
-        Error = error;
-    }
-
-    public FileContent File { get; }
-    public string Error { get; }
     public bool IsSuccess => Error == null;
 }

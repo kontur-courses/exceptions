@@ -1,50 +1,13 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
-using ResultOf;
 
 namespace FileSenderRailway.Solved
 {
-    public class Document
-    {
-        public Document(string name, byte[] content, DateTime created, string format)
-        {
-            Name = name;
-            Created = created;
-            Format = format;
-            Content = content;
-        }
+    public record Document(string Name, byte[] Content, DateTime Created, string Format);
 
-        public string Name { get; }
-        public DateTime Created { get; }
-        public string Format { get; }
-        public byte[] Content { get; }
-        public Document WithContent(byte[] newContent) 
-            => new Document(Name, newContent, Created, Format);
-    }
+    public record FileContent(string Name, byte[] Content);
 
-    public class FileContent
-    {
-        public FileContent(string name, byte[] content)
-        {
-            Name = name;
-            Content = content;
-        }
-
-        public string Name { get; }
-        public byte[] Content { get; }
-    }
-
-    public class FileSendResult
-    {
-        public FileSendResult(FileContent file, string error)
-        {
-            File = file;
-            Error = error;
-        }
-
-        public FileContent File { get; }
-        public string Error { get; }
-    }
+    public record FileSendResult(FileContent File, string Error);
 
     public interface ICryptographer
     {

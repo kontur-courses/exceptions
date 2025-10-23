@@ -40,11 +40,11 @@ public class FileSender
             }
             catch (FormatException e)
             {
-                errorMessage = "Can't prepare file to send. " + e.Message;
+                errorMessage = $"Can't prepare file to send. {e.Message}";
             }
             catch (InvalidOperationException e)
             {
-                errorMessage = "Can't send. " + e.Message;
+                errorMessage = $"Can't send. {e.Message}";
             }
             yield return new FileSendResult(file, errorMessage);
         }
