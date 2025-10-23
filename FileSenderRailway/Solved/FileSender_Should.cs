@@ -1,18 +1,17 @@
 using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
-using ApprovalTests;
-using ApprovalTests.Namers;
-using ApprovalTests.Reporters;
+using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions;
 using NUnit.Framework;
 using ResultOf;
+using VerifyNUnit;
+using VerifyTests;
 
 namespace FileSenderRailway.Solved
 {
     [TestFixture]
-    [UseReporter(typeof(DiffReporter))]
     public class FileSender_Should
     {
         private FileSender fileSender;
@@ -47,12 +46,12 @@ namespace FileSenderRailway.Solved
         }
 
         [Test]
-        public void Fail_WhenNotRecognized()
+        public async Task Fail_WhenNotRecognized()
         {
             A.CallTo(() => recognizer.Recognize(file))
                 .Returns(Result.Fail<Document>("Can't recognize"));
 
-            VerifyErrorOnPrepareFile(file, certificate);
+            await VerifyErrorOnPrepareFile(file, certificate);
         }
 
         [TestCase("1.0", 0)]
@@ -60,11 +59,10 @@ namespace FileSenderRailway.Solved
         [TestCase("3.1", 32)]
         [TestCase("wrong", 32)]
         [Test]
-        public void Fail_WhenBadFormatOrTimestamp(string format, int daysBeforeNow)
+        public Task Fail_WhenBadFormatOrTimestamp(string format, int daysBeforeNow)
         {
             PrepareDocument(file, null, now.AddDays(-daysBeforeNow), format);
-            using (ApprovalResults.ForScenario(format, daysBeforeNow))
-                VerifyErrorOnPrepareFile(file, certificate);
+            return VerifyErrorOnPrepareFile(file, certificate, format, daysBeforeNow);
         }
 
         private Document PrepareDocument(FileContent fileToPrepare, byte[] signed, DateTime created, string format)
@@ -75,11 +73,17 @@ namespace FileSenderRailway.Solved
             return document;
         }
 
-        private void VerifyErrorOnPrepareFile(FileContent fileContent, X509Certificate x509Certificate)
+        private Task VerifyErrorOnPrepareFile(FileContent fileContent, X509Certificate x509Certificate, string format = null, int? daysBeforeNow = null)
         {
             var res = fileSender.PrepareFileToSend(fileContent, x509Certificate);
             res.IsSuccess.Should().BeFalse();
-            Approvals.Verify(res.Error);
+
+            var settings = new VerifySettings();
+            if (format != null && daysBeforeNow.HasValue)
+            {
+                settings.UseParameters(format, daysBeforeNow.Value);
+            }
+            return Verifier.Verify(res.Error, settings);
         }
 
         private static byte[] SomeByteArray()
